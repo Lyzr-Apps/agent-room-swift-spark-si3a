@@ -1,0 +1,68 @@
+{
+  "workflow": {
+    "nodes": [
+      {
+        "id": "input_node",
+        "type": "Input",
+        "label": "User Message",
+        "nodeCategory": "input"
+      },
+      {
+        "id": "platform_router",
+        "type": "Agent",
+        "label": "Platform Router",
+        "nodeCategory": "agent"
+      },
+      {
+        "id": "room_agent_template",
+        "type": "Agent",
+        "label": "Room Agent Template",
+        "nodeCategory": "agent"
+      },
+      {
+        "id": "output_node",
+        "type": "Output",
+        "label": "Discussion Thread",
+        "nodeCategory": "end"
+      }
+    ],
+    "edges": [
+      {
+        "source": "input_node",
+        "target": "platform_router"
+      },
+      {
+        "source": "platform_router",
+        "target": "room_agent_template"
+      },
+      {
+        "source": "room_agent_template",
+        "target": "output_node"
+      }
+    ]
+  },
+  "agents": {
+    "room_agent": {
+      "agent_id": "699aa54eadf9a88c8206a794",
+      "name": "Room Agent",
+      "description": "A fully configurable conversational agent for AgentRoom discussion rooms. Responds to user messages based on configured trigger rules, personality, and system prompt. Each instance can have its own knowledge base, temperature, and behavioral settings.",
+      "model": "gpt-4.1",
+      "provider": "OpenAI",
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "capabilities": {
+        "image_output": false,
+        "voice": false,
+        "file_output": false,
+        "knowledge_base": false
+      },
+      "response_schema": {
+        "agent_name": "string",
+        "response": "string",
+        "confidence": "number",
+        "references": ["string"],
+        "tone": "string"
+      }
+    }
+  }
+}

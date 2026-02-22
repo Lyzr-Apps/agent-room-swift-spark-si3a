@@ -1,0 +1,26 @@
+{
+  "agent_name": "Room Agent",
+  "agent_id": "699aa54eadf9a88c8206a794",
+  "description": "A fully configurable conversational agent for AgentRoom discussion rooms. Responds to user messages based on configured trigger rules, personality, and system prompt. Each instance can have its own knowledge base, temperature, and behavioral settings.",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "agent_name": "string",
+    "response": "string",
+    "confidence": "number",
+    "references": [
+      "string"
+    ],
+    "tone": "string"
+  },
+  "example_response": {
+    "agent_name": "sample string",
+    "response": "sample string",
+    "confidence": 0,
+    "references": [
+      "sample string"
+    ],
+    "tone": "sample string"
+  }
+}
