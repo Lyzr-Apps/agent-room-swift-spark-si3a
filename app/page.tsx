@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap } from 'react-icons/fi'
+import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle } from 'react-icons/fi'
 
 // ============================================================
 // TYPES
@@ -117,7 +117,7 @@ const FREQUENCIES = [
 function createSampleData(): Room[] {
   return [
     {
-      id: generateUUID(),
+      id: 'sample-room-1',
       name: 'Product Strategy Review',
       description: 'Multi-perspective analysis of Q2 product roadmap with research, design, and engineering viewpoints.',
       visibility: 'private',
@@ -125,7 +125,7 @@ function createSampleData(): Room[] {
       agents: [
         {
           id: 'agent-ra-1',
-          name: 'Research Analyst',
+          name: 'ResearchAnalyst',
           systemPrompt: 'You are a meticulous research analyst. Provide data-driven insights, cite relevant studies, and challenge assumptions with evidence. Always back claims with references.',
           personality: 'analytical',
           temperature: 0.3,
@@ -138,7 +138,7 @@ function createSampleData(): Room[] {
         },
         {
           id: 'agent-cd-1',
-          name: 'Creative Director',
+          name: 'CreativeDirector',
           systemPrompt: 'You are an imaginative creative director. Think outside the box, propose bold ideas, and push boundaries. Challenge conventional thinking with fresh perspectives.',
           personality: 'creative',
           temperature: 0.8,
@@ -151,7 +151,7 @@ function createSampleData(): Room[] {
         },
         {
           id: 'agent-da-1',
-          name: 'Devils Advocate',
+          name: 'DevilsAdvocate',
           systemPrompt: 'You challenge every idea presented. Find flaws, risks, and weaknesses. Be constructively critical while maintaining professionalism.',
           personality: 'provocative',
           temperature: 0.6,
@@ -178,7 +178,7 @@ function createSampleData(): Room[] {
         {
           id: 'msg-2',
           content: 'Based on current market data, **user retention** should take precedence over new user acquisition. Our churn rate of 12% is above industry average (8-10%). I recommend focusing on:\n\n1. **Onboarding optimization** - reduce time-to-value\n2. **Feature discovery** - users only engage with 30% of available features\n3. **Personalization engine** - tailored experiences increase retention by 25%\n\nMonetization will naturally follow improved retention metrics.',
-          sender: 'Research Analyst',
+          sender: 'ResearchAnalyst',
           senderType: 'agent',
           agentId: 'agent-ra-1',
           timestamp: new Date(Date.now() - 3500000).toISOString(),
@@ -189,7 +189,7 @@ function createSampleData(): Room[] {
         {
           id: 'msg-3',
           content: 'I agree retention matters, but what if we flip the script entirely? Instead of fixing churn, let us **make the product so remarkable that users become advocates**. Think about it:\n\n- A **social sharing layer** that turns usage into community\n- **Collaborative workspaces** that create network effects\n- A **creator program** that rewards power users\n\nThe best retention strategy is building something people want to tell others about.',
-          sender: 'Creative Director',
+          sender: 'CreativeDirector',
           senderType: 'agent',
           agentId: 'agent-cd-1',
           timestamp: new Date(Date.now() - 3400000).toISOString(),
@@ -202,7 +202,7 @@ function createSampleData(): Room[] {
       lastActivity: new Date(Date.now() - 3400000).toISOString(),
     },
     {
-      id: generateUUID(),
+      id: 'sample-room-2',
       name: 'Tech Architecture Planning',
       description: 'Evaluating microservices migration strategy with security, performance, and cost perspectives.',
       visibility: 'public',
@@ -210,7 +210,7 @@ function createSampleData(): Room[] {
       agents: [
         {
           id: 'agent-se-1',
-          name: 'Security Expert',
+          name: 'SecurityExpert',
           systemPrompt: 'You are a cybersecurity specialist. Evaluate all proposals through a security lens. Identify vulnerabilities, compliance risks, and recommend security-first approaches.',
           personality: 'formal',
           temperature: 0.2,
@@ -223,14 +223,14 @@ function createSampleData(): Room[] {
         },
         {
           id: 'agent-co-1',
-          name: 'Cost Optimizer',
+          name: 'CostOptimizer',
           systemPrompt: 'You analyze everything from a cost-efficiency perspective. Provide ROI calculations, budget implications, and cost-saving alternatives.',
           personality: 'analytical',
           temperature: 0.3,
           topP: 0.85,
           responseLength: 'medium',
           trigger: 'all',
-          frequency: 'every-2nd',
+          frequency: 'every',
           interAgentRules: 'reference',
           color: AGENT_COLORS[3],
         },
@@ -243,7 +243,7 @@ function createSampleData(): Room[] {
       lastActivity: new Date(Date.now() - 172800000).toISOString(),
     },
     {
-      id: generateUUID(),
+      id: 'sample-room-3',
       name: 'Marketing Campaign Brainstorm',
       description: 'Open brainstorming session for upcoming product launch campaign with brand and growth agents.',
       visibility: 'public',
@@ -251,7 +251,7 @@ function createSampleData(): Room[] {
       agents: [
         {
           id: 'agent-bs-1',
-          name: 'Brand Strategist',
+          name: 'BrandStrategist',
           systemPrompt: 'You are a brand strategy expert. Focus on brand positioning, messaging frameworks, and audience resonance. Ensure all ideas align with brand values.',
           personality: 'supportive',
           temperature: 0.5,
@@ -280,15 +280,15 @@ function createSampleData(): Room[] {
 function renderMarkdown(text: string) {
   if (!text) return null
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {text.split('\n').map((line, i) => {
         if (line.startsWith('### ')) return <h4 key={i} className="font-semibold text-sm mt-3 mb-1">{line.slice(4)}</h4>
         if (line.startsWith('## ')) return <h3 key={i} className="font-semibold text-base mt-3 mb-1">{line.slice(3)}</h3>
         if (line.startsWith('# ')) return <h2 key={i} className="font-bold text-lg mt-4 mb-2">{line.slice(2)}</h2>
-        if (line.startsWith('- ') || line.startsWith('* ')) return <li key={i} className="ml-4 list-disc text-sm">{formatInline(line.slice(2))}</li>
-        if (/^\d+\.\s/.test(line)) return <li key={i} className="ml-4 list-decimal text-sm">{formatInline(line.replace(/^\d+\.\s/, ''))}</li>
+        if (line.startsWith('- ') || line.startsWith('* ')) return <li key={i} className="ml-4 list-disc text-sm leading-relaxed">{formatInline(line.slice(2))}</li>
+        if (/^\d+\.\s/.test(line)) return <li key={i} className="ml-4 list-decimal text-sm leading-relaxed">{formatInline(line.replace(/^\d+\.\s/, ''))}</li>
         if (!line.trim()) return <div key={i} className="h-1" />
-        return <p key={i} className="text-sm">{formatInline(line)}</p>
+        return <p key={i} className="text-sm leading-relaxed">{formatInline(line)}</p>
       })}
     </div>
   )
@@ -332,6 +332,57 @@ function timeAgo(iso: string): string {
 
 function getInitial(name: string): string {
   return (name?.charAt(0) ?? 'A').toUpperCase()
+}
+
+function extractAgentResponseText(result: any): string {
+  // Try multiple paths for extracting text from agent response
+  if (!result) return ''
+
+  // Path 1: structured JSON response
+  const r = result?.response?.result
+  if (r) {
+    if (typeof r === 'string') return r
+    if (r.response) return String(r.response)
+    if (r.text) return String(r.text)
+    if (r.message) return String(r.message)
+    if (r.content) return String(r.content)
+    if (r.answer) return String(r.answer)
+  }
+
+  // Path 2: direct message field
+  if (result?.response?.message && typeof result.response.message === 'string') {
+    return result.response.message
+  }
+
+  // Path 3: raw_response string
+  if (result?.raw_response && typeof result.raw_response === 'string') {
+    try {
+      const parsed = JSON.parse(result.raw_response)
+      if (parsed?.response) return String(parsed.response)
+      if (parsed?.text) return String(parsed.text)
+      if (parsed?.message) return String(parsed.message)
+    } catch {
+      // raw_response might be plain text
+      return result.raw_response
+    }
+  }
+
+  // Path 4: result is the response object directly
+  if (result?.response && typeof result.response === 'string') {
+    return result.response
+  }
+
+  return ''
+}
+
+function extractAgentMetadata(result: any, fallbackName: string, fallbackPersonality: string) {
+  const r = result?.response?.result
+  return {
+    agent_name: r?.agent_name || fallbackName,
+    confidence: typeof r?.confidence === 'number' ? r.confidence : 0,
+    tone: r?.tone || fallbackPersonality,
+    references: Array.isArray(r?.references) ? r.references.filter((ref: any) => typeof ref === 'string' && ref.trim()) : [],
+  }
 }
 
 // ============================================================
@@ -390,18 +441,76 @@ function UserAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 
 }
 
 function PersonalityBadge({ personality }: { personality: string }) {
-  return <Badge variant="outline" className="text-xs capitalize border-border">{personality}</Badge>
+  return <Badge variant="outline" className="text-[10px] capitalize border-border h-4 px-1.5">{personality}</Badge>
 }
 
-function TypingDots({ agentName }: { agentName: string }) {
+function TypingDots({ agentName, color }: { agentName: string; color?: string }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3">
       <div className="flex gap-1">
-        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
-        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
-        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
+        <span className="h-1.5 w-1.5 rounded-full animate-bounce" style={{ backgroundColor: color || 'hsl(0,0%,55%)', animationDelay: '0ms' }} />
+        <span className="h-1.5 w-1.5 rounded-full animate-bounce" style={{ backgroundColor: color || 'hsl(0,0%,55%)', animationDelay: '150ms' }} />
+        <span className="h-1.5 w-1.5 rounded-full animate-bounce" style={{ backgroundColor: color || 'hsl(0,0%,55%)', animationDelay: '300ms' }} />
       </div>
       <span className="text-xs text-muted-foreground tracking-tight">{agentName} is thinking...</span>
+    </div>
+  )
+}
+
+// ============================================================
+// USER IDENTITY ENTRY
+// ============================================================
+
+function UserIdentityEntry({ onJoin }: { onJoin: (name: string) => void }) {
+  const [name, setName] = useState('')
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (name.trim().length >= 2) {
+      onJoin(name.trim())
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="w-full max-w-sm mx-auto p-8">
+        <div className="flex flex-col items-center mb-8">
+          <div className="h-12 w-12 flex items-center justify-center mb-4" style={{ backgroundColor: 'hsl(0, 70%, 55%)' }}>
+            <FiMessageSquare className="h-6 w-6 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight font-serif">AgentRoom</h1>
+          <p className="text-sm text-muted-foreground mt-2 tracking-tight leading-relaxed text-center">
+            Multi-agent collaborative discussion platform.
+            Enter your name to get started.
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium tracking-tight">Your Display Name</Label>
+            <Input
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="e.g., Sarah Chen"
+              className="shadow-none text-center"
+              autoFocus
+              minLength={2}
+              maxLength={30}
+            />
+            <p className="text-xs text-muted-foreground tracking-tight text-center">
+              This name will appear on your messages in discussion rooms
+            </p>
+          </div>
+          <Button
+            type="submit"
+            disabled={name.trim().length < 2}
+            className="w-full shadow-none gap-2"
+            style={name.trim().length >= 2 ? { backgroundColor: 'hsl(0, 70%, 55%)', color: 'white' } : {}}
+          >
+            <FiLogIn className="h-4 w-4" />
+            Enter AgentRoom
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
@@ -417,6 +526,7 @@ function DashboardView({
   onConfigure,
   searchQuery,
   setSearchQuery,
+  isAdmin,
 }: {
   rooms: Room[]
   onSelect: (room: Room) => void
@@ -424,6 +534,7 @@ function DashboardView({
   onConfigure: (room: Room) => void
   searchQuery: string
   setSearchQuery: (q: string) => void
+  isAdmin: boolean
 }) {
   const filtered = rooms.filter(
     r => r.name.toLowerCase().includes(searchQuery.toLowerCase()) || r.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -435,12 +546,16 @@ function DashboardView({
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight font-serif">Discussion Rooms</h1>
-            <p className="text-sm text-muted-foreground mt-1 tracking-tight leading-relaxed">Manage and enter collaborative AI discussion rooms</p>
+            <p className="text-sm text-muted-foreground mt-1 tracking-tight leading-relaxed">
+              {isAdmin ? 'Manage and configure collaborative AI discussion rooms' : 'Join a discussion room to collaborate with AI agents'}
+            </p>
           </div>
-          <Button onClick={onCreate} className="shadow-none gap-2">
-            <FiPlus className="h-4 w-4" />
-            Create Room
-          </Button>
+          {isAdmin && (
+            <Button onClick={onCreate} className="shadow-none gap-2">
+              <FiPlus className="h-4 w-4" />
+              Create Room
+            </Button>
+          )}
         </div>
 
         <div className="relative mb-6">
@@ -454,11 +569,17 @@ function DashboardView({
               <FiMessageSquare className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold tracking-tight font-serif mb-2">No rooms yet</h3>
-            <p className="text-sm text-muted-foreground tracking-tight leading-relaxed max-w-sm">Create your first discussion room to start collaborative AI conversations with multiple agent perspectives.</p>
-            <Button onClick={onCreate} className="shadow-none gap-2 mt-6">
-              <FiPlus className="h-4 w-4" />
-              Create Your First Room
-            </Button>
+            <p className="text-sm text-muted-foreground tracking-tight leading-relaxed max-w-sm">
+              {isAdmin
+                ? 'Create your first discussion room to start collaborative AI conversations with multiple agent perspectives.'
+                : 'No rooms are available. Ask an admin to create a room and add you as a participant.'}
+            </p>
+            {isAdmin && (
+              <Button onClick={onCreate} className="shadow-none gap-2 mt-6">
+                <FiPlus className="h-4 w-4" />
+                Create Your First Room
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -470,9 +591,11 @@ function DashboardView({
                       <CardTitle className="text-base font-bold tracking-tight font-serif truncate">{room.name}</CardTitle>
                       <CardDescription className="text-xs mt-1 tracking-tight leading-relaxed line-clamp-2">{room.description}</CardDescription>
                     </div>
-                    <Button variant="ghost" size="sm" className="shadow-none h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => { e.stopPropagation(); onConfigure(room) }}>
-                      <FiSettings className="h-4 w-4" />
-                    </Button>
+                    {isAdmin && (
+                      <Button variant="ghost" size="sm" className="shadow-none h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => { e.stopPropagation(); onConfigure(room) }}>
+                        <FiSettings className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="pb-4">
@@ -489,6 +612,16 @@ function DashboardView({
                     </div>
                     <span className="text-xs text-muted-foreground">{timeAgo(room.lastActivity)}</span>
                   </div>
+                  {room.agents.length > 0 && (
+                    <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                      {room.agents.map(agent => (
+                        <span key={agent.id} className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: agent.color }} />
+                          {agent.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -522,6 +655,7 @@ function RoomConfigView({
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(editRoom.agents.length > 0 ? editRoom.agents[0].id : null)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'participant' | 'observer' | 'moderator'>('participant')
+  const [saved, setSaved] = useState(false)
 
   const selectedAgent = editRoom.agents.find(a => a.id === selectedAgentId) ?? null
 
@@ -530,13 +664,14 @@ function RoomConfigView({
       ...prev,
       agents: prev.agents.map(a => a.id === agentId ? { ...a, ...updates } : a),
     }))
+    setSaved(false)
   }
 
   function addAgent() {
     const colorIdx = editRoom.agents.length % AGENT_COLORS.length
     const newAgent: RoomAgent = {
       id: generateUUID(),
-      name: 'New Agent',
+      name: 'NewAgent',
       systemPrompt: '',
       personality: 'analytical',
       temperature: 0.5,
@@ -549,6 +684,7 @@ function RoomConfigView({
     }
     setEditRoom(prev => ({ ...prev, agents: [...prev.agents, newAgent] }))
     setSelectedAgentId(newAgent.id)
+    setSaved(false)
   }
 
   function removeAgent(agentId: string) {
@@ -560,6 +696,7 @@ function RoomConfigView({
       const remaining = editRoom.agents.filter(a => a.id !== agentId)
       setSelectedAgentId(remaining.length > 0 ? remaining[0].id : null)
     }
+    setSaved(false)
   }
 
   function addUser() {
@@ -572,10 +709,17 @@ function RoomConfigView({
     }
     setEditRoom(prev => ({ ...prev, users: [...prev.users, newUser] }))
     setInviteEmail('')
+    setSaved(false)
   }
 
   function removeUser(userId: string) {
     setEditRoom(prev => ({ ...prev, users: prev.users.filter(u => u.id !== userId) }))
+    setSaved(false)
+  }
+
+  function handleSave() {
+    onSave(editRoom)
+    setSaved(true)
   }
 
   return (
@@ -589,6 +733,7 @@ function RoomConfigView({
           <Separator orientation="vertical" className="h-5" />
           <h1 className="text-xl font-bold tracking-tight font-serif">Configure Room</h1>
           <span className="text-sm text-muted-foreground tracking-tight">- {editRoom.name}</span>
+          {saved && <Badge variant="outline" className="text-xs border-green-500 text-green-500">Saved</Badge>}
         </div>
 
         <Tabs defaultValue="agents" className="w-full">
@@ -611,14 +756,21 @@ function RoomConfigView({
                 </div>
                 <div className="space-y-2">
                   {editRoom.agents.length === 0 ? (
-                    <p className="text-xs text-muted-foreground py-8 text-center tracking-tight">No agents configured yet.</p>
+                    <div className="text-center py-8 border border-dashed border-border">
+                      <FiCpu className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-xs text-muted-foreground tracking-tight">No agents configured yet.</p>
+                      <p className="text-xs text-muted-foreground tracking-tight mt-1">Click Add to create your first agent.</p>
+                    </div>
                   ) : (
                     editRoom.agents.map(agent => (
                       <div key={agent.id} className={cn('flex items-center gap-3 p-3 border border-border cursor-pointer transition-colors', selectedAgentId === agent.id ? 'bg-secondary border-foreground/30' : 'hover:bg-secondary/50')} onClick={() => setSelectedAgentId(agent.id)}>
                         <AgentAvatar name={agent.name} color={agent.color} size="sm" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium tracking-tight truncate">{agent.name}</p>
-                          <PersonalityBadge personality={agent.personality} />
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <PersonalityBadge personality={agent.personality} />
+                            <span className="text-[10px] text-muted-foreground capitalize">{agent.trigger}</span>
+                          </div>
                         </div>
                         <button onClick={e => { e.stopPropagation(); removeAgent(agent.id) }} className="h-6 w-6 flex items-center justify-center hover:bg-destructive/20 transition-colors">
                           <FiTrash2 className="h-3 w-3 text-muted-foreground" />
@@ -644,7 +796,8 @@ function RoomConfigView({
                     <CardContent className="space-y-5">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-medium tracking-tight">Agent Name</Label>
-                        <Input value={selectedAgent.name} onChange={e => updateAgent(selectedAgent.id, { name: e.target.value })} className="shadow-none" />
+                        <Input value={selectedAgent.name} onChange={e => updateAgent(selectedAgent.id, { name: e.target.value.replace(/\s/g, '') })} className="shadow-none" />
+                        <p className="text-[10px] text-muted-foreground tracking-tight">No spaces allowed. Used for @mentions (e.g., @{selectedAgent.name})</p>
                       </div>
 
                       <div className="space-y-1.5">
@@ -695,9 +848,9 @@ function RoomConfigView({
                       <div className="space-y-2">
                         <Label className="text-xs font-medium tracking-tight">Trigger Rules</Label>
                         <RadioGroup value={selectedAgent.trigger} onValueChange={v => updateAgent(selectedAgent.id, { trigger: v as RoomAgent['trigger'] })}>
-                          <div className="flex items-center gap-2"><RadioGroupItem value="mentions" id={`t-m-${selectedAgent.id}`} /><Label htmlFor={`t-m-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">@mentions only</Label></div>
-                          <div className="flex items-center gap-2"><RadioGroupItem value="all" id={`t-a-${selectedAgent.id}`} /><Label htmlFor={`t-a-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">All messages</Label></div>
-                          <div className="flex items-center gap-2"><RadioGroupItem value="proactive" id={`t-p-${selectedAgent.id}`} /><Label htmlFor={`t-p-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">Proactive</Label></div>
+                          <div className="flex items-center gap-2"><RadioGroupItem value="mentions" id={`t-m-${selectedAgent.id}`} /><Label htmlFor={`t-m-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">@mentions only - responds only when tagged</Label></div>
+                          <div className="flex items-center gap-2"><RadioGroupItem value="all" id={`t-a-${selectedAgent.id}`} /><Label htmlFor={`t-a-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">All messages - responds to every message</Label></div>
+                          <div className="flex items-center gap-2"><RadioGroupItem value="proactive" id={`t-p-${selectedAgent.id}`} /><Label htmlFor={`t-p-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">Proactive - responds to all and may interject</Label></div>
                         </RadioGroup>
                       </div>
 
@@ -714,7 +867,7 @@ function RoomConfigView({
                       <div className="space-y-2">
                         <Label className="text-xs font-medium tracking-tight">Inter-Agent Rules</Label>
                         <RadioGroup value={selectedAgent.interAgentRules} onValueChange={v => updateAgent(selectedAgent.id, { interAgentRules: v as RoomAgent['interAgentRules'] })}>
-                          <div className="flex items-center gap-2"><RadioGroupItem value="reference" id={`ir-r-${selectedAgent.id}`} /><Label htmlFor={`ir-r-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">Can reference other agents</Label></div>
+                          <div className="flex items-center gap-2"><RadioGroupItem value="reference" id={`ir-r-${selectedAgent.id}`} /><Label htmlFor={`ir-r-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">Can reference other agents responses</Label></div>
                           <div className="flex items-center gap-2"><RadioGroupItem value="independent" id={`ir-i-${selectedAgent.id}`} /><Label htmlFor={`ir-i-${selectedAgent.id}`} className="text-xs tracking-tight cursor-pointer">Independent only</Label></div>
                         </RadioGroup>
                       </div>
@@ -790,15 +943,15 @@ function RoomConfigView({
               <CardContent className="space-y-4">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium tracking-tight">Room Name</Label>
-                  <Input value={editRoom.name} onChange={e => setEditRoom(prev => ({ ...prev, name: e.target.value }))} className="shadow-none" />
+                  <Input value={editRoom.name} onChange={e => { setEditRoom(prev => ({ ...prev, name: e.target.value })); setSaved(false) }} className="shadow-none" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium tracking-tight">Description</Label>
-                  <Textarea value={editRoom.description} onChange={e => setEditRoom(prev => ({ ...prev, description: e.target.value }))} rows={3} className="shadow-none text-sm" />
+                  <Textarea value={editRoom.description} onChange={e => { setEditRoom(prev => ({ ...prev, description: e.target.value })); setSaved(false) }} rows={3} className="shadow-none text-sm" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium tracking-tight">Visibility</Label>
-                  <Select value={editRoom.visibility} onValueChange={v => setEditRoom(prev => ({ ...prev, visibility: v as Room['visibility'] }))}>
+                  <Select value={editRoom.visibility} onValueChange={v => { setEditRoom(prev => ({ ...prev, visibility: v as Room['visibility'] })); setSaved(false) }}>
                     <SelectTrigger className="shadow-none"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="public">Public</SelectItem>
@@ -812,7 +965,7 @@ function RoomConfigView({
                     <p className="text-sm font-medium tracking-tight">Archive Room</p>
                     <p className="text-xs text-muted-foreground tracking-tight">Archived rooms are read-only</p>
                   </div>
-                  <Button variant="outline" size="sm" className="shadow-none gap-1 text-xs" onClick={() => setEditRoom(prev => ({ ...prev, status: prev.status === 'active' ? 'archived' : 'active' }))}>
+                  <Button variant="outline" size="sm" className="shadow-none gap-1 text-xs" onClick={() => { setEditRoom(prev => ({ ...prev, status: prev.status === 'active' ? 'archived' : 'active' })); setSaved(false) }}>
                     <FiArchive className="h-3 w-3" />
                     {editRoom.status === 'active' ? 'Archive' : 'Unarchive'}
                   </Button>
@@ -823,12 +976,18 @@ function RoomConfigView({
         </Tabs>
 
         <div className="flex items-center justify-end gap-3 mt-6">
-          <Button variant="outline" onClick={() => onSave(editRoom)} className="shadow-none">Save Changes</Button>
-          <Button onClick={() => onLaunch(editRoom)} className="shadow-none gap-1" style={{ backgroundColor: 'hsl(0, 70%, 55%)', color: 'white' }}>
+          <Button variant="outline" onClick={handleSave} className="shadow-none">Save Changes</Button>
+          <Button onClick={() => onLaunch(editRoom)} className="shadow-none gap-1" disabled={editRoom.agents.length === 0} style={{ backgroundColor: 'hsl(0, 70%, 55%)', color: 'white' }}>
             <FiZap className="h-4 w-4" />
             Launch Room
           </Button>
         </div>
+        {editRoom.agents.length === 0 && (
+          <p className="text-xs text-muted-foreground text-right mt-2 tracking-tight flex items-center justify-end gap-1">
+            <FiAlertCircle className="h-3 w-3" />
+            Add at least one agent before launching
+          </p>
+        )}
       </div>
     </div>
   )
@@ -844,12 +1003,14 @@ function DiscussionView({
   setSelectedRoom,
   updateRoom,
   isAdmin,
+  userName,
 }: {
   rooms: Room[]
   selectedRoom: Room
   setSelectedRoom: (room: Room) => void
   updateRoom: (updated: Room) => void
   isAdmin: boolean
+  userName: string
 }) {
   const [messageInput, setMessageInput] = useState('')
   const [typingAgents, setTypingAgents] = useState<string[]>([])
@@ -860,7 +1021,7 @@ function DiscussionView({
   const [chatError, setChatError] = useState<string | null>(null)
   const [agentsOpen, setAgentsOpen] = useState(true)
   const [usersOpen, setUsersOpen] = useState(true)
-  const [activeAgentId, setActiveAgentId] = useState<string | null>(null)
+  const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const roomRef = useRef<Room>(selectedRoom)
@@ -880,10 +1041,15 @@ function DiscussionView({
 
   const detailAgent = selectedRoom.agents.find(a => a.id === agentDetailId) ?? null
 
+  // Parse @mentions from message - matches agent names (no spaces in names)
   function parseMentions(text: string): string[] {
-    const matches = text.match(/@([\w]+(?:\s[\w]+)?)/g)
-    if (!matches) return []
-    return matches.map(m => m.slice(1).trim())
+    const mentions: string[] = []
+    const regex = /@(\w+)/g
+    let match: RegExpExecArray | null
+    while ((match = regex.exec(text)) !== null) {
+      mentions.push(match[1])
+    }
+    return mentions
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -896,7 +1062,7 @@ function DiscussionView({
 
     if (atIndex !== -1 && (atIndex === 0 || textBeforeCursor[atIndex - 1] === ' ')) {
       const filterText = textBeforeCursor.slice(atIndex + 1)
-      if (filterText.length < 30) {
+      if (filterText.length < 30 && !filterText.includes(' ')) {
         setShowMentionPopover(true)
         setMentionFilter(filterText.toLowerCase())
         setMentionCursorPos(atIndex)
@@ -909,8 +1075,10 @@ function DiscussionView({
 
   function insertMention(agentName: string) {
     const before = messageInput.slice(0, mentionCursorPos)
-    const after = messageInput.slice(mentionCursorPos)
-    const cleanAfter = after.replace(/@[\w\s]*/, '')
+    // Find the end of partial mention text after the @
+    const afterAt = messageInput.slice(mentionCursorPos)
+    const endOfMention = afterAt.match(/^@\w*/)
+    const cleanAfter = endOfMention ? afterAt.slice(endOfMention[0].length) : afterAt
     const newVal = `${before}@${agentName} ${cleanAfter}`
     setMessageInput(newVal)
     setShowMentionPopover(false)
@@ -926,23 +1094,39 @@ function DiscussionView({
     const mentions = parseMentions(userMessage)
     const result: RoomAgent[] = []
 
+    // Check which agents are specifically mentioned
+    const mentionedAgents: RoomAgent[] = []
     for (const agent of selectedRoom.agents) {
-      const isMentioned = mentions.some(m => agent.name.toLowerCase().startsWith(m.toLowerCase()))
+      const isMentioned = mentions.some(m => agent.name.toLowerCase() === m.toLowerCase())
       if (isMentioned) {
-        result.push(agent)
-      } else if ((agent.trigger === 'all' || agent.trigger === 'proactive') && mentions.length === 0) {
-        result.push(agent)
+        mentionedAgents.push(agent)
       }
     }
+
+    // If any agents are @mentioned, only they respond
+    if (mentionedAgents.length > 0) {
+      return mentionedAgents
+    }
+
+    // If no @mentions at all, agents with trigger "all" or "proactive" respond
+    if (mentions.length === 0) {
+      for (const agent of selectedRoom.agents) {
+        if (agent.trigger === 'all' || agent.trigger === 'proactive') {
+          result.push(agent)
+        }
+      }
+    }
+
     return result
   }
 
   function buildContext(): string {
     const recent = selectedRoom.messages.slice(-10)
+    if (recent.length === 0) return '(No prior conversation)'
     return recent.map(m => `[${m.sender}]: ${m.content}`).join('\n')
   }
 
-  async function callRoomAgent(agent: RoomAgent, userMessage: string, context: string) {
+  async function callRoomAgent(agent: RoomAgent, userMessage: string, context: string): Promise<{ content: string; agent_name: string; confidence: number; tone: string; references: string[] } | null> {
     const prompt = `[System Configuration]
 Agent Name: ${agent.name}
 Personality: ${agent.personality}
@@ -952,44 +1136,60 @@ ${agent.systemPrompt ? `System Prompt: ${agent.systemPrompt}` : ''}
 [Conversation Context]
 ${context}
 
-[User Message]
+[User Message from ${userName}]
 ${userMessage}
 
-Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in the response must be "${agent.name}".`
+IMPORTANT: Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in the JSON response MUST be "${agent.name}". Keep your response ${agent.responseLength === 'short' ? 'concise (2-3 sentences)' : agent.responseLength === 'medium' ? 'moderate (1-2 paragraphs)' : agent.responseLength === 'long' ? 'detailed and thorough' : 'as long as needed'}.`
 
     const sessionId = `room-${selectedRoom.id}-agent-${agent.id}`
-    setActiveAgentId(agent.id)
 
     try {
       const result = await callAIAgent(prompt, AGENT_ID, { session_id: sessionId })
-      setActiveAgentId(null)
 
-      if (result.success) {
-        const parsed = result?.response?.result
+      if (result && result.success) {
+        const text = extractAgentResponseText(result)
+        const meta = extractAgentMetadata(result, agent.name, agent.personality)
+
         return {
-          content: parsed?.response || result?.response?.message || 'No response generated.',
-          agent_name: parsed?.agent_name || agent.name,
-          confidence: typeof parsed?.confidence === 'number' ? parsed.confidence : 0,
-          tone: parsed?.tone || agent.personality,
-          references: Array.isArray(parsed?.references) ? parsed.references : [],
+          content: text || 'I received your message but could not formulate a response. Please try again.',
+          agent_name: meta.agent_name,
+          confidence: meta.confidence,
+          tone: meta.tone,
+          references: meta.references,
         }
       }
+
+      // Handle non-success but still got a response
+      if (result && result.response) {
+        const text = extractAgentResponseText(result)
+        if (text) {
+          return {
+            content: text,
+            agent_name: agent.name,
+            confidence: 0,
+            tone: agent.personality,
+            references: [],
+          }
+        }
+      }
+
       return null
-    } catch {
-      setActiveAgentId(null)
+    } catch (err) {
+      console.error(`Error calling agent ${agent.name}:`, err)
       return null
     }
   }
 
   async function handleSend() {
     const text = messageInput.trim()
-    if (!text) return
+    if (!text || isSending) return
     setChatError(null)
+    setIsSending(true)
 
     const userMsg: Message = {
       id: generateUUID(),
       content: text,
-      sender: 'You',
+      sender: userName,
       senderType: 'user',
       timestamp: new Date().toISOString(),
     }
@@ -1002,43 +1202,54 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
     updateRoom(updatedWithUser)
     roomRef.current = updatedWithUser
     setMessageInput('')
+    setShowMentionPopover(false)
 
     const responding = getRespondingAgents(text)
-    if (responding.length === 0) return
+    if (responding.length === 0) {
+      setChatError('No agents matched your message. Use @AgentName to mention a specific agent, or send a message without @ to broadcast to all listening agents.')
+      setIsSending(false)
+      return
+    }
 
-    const context = buildContext()
-
+    // Call agents sequentially
     for (const agent of responding) {
       setTypingAgents(prev => [...prev, agent.name])
 
-      const response = await callRoomAgent(agent, text, context)
+      try {
+        const response = await callRoomAgent(agent, text, buildContext())
 
-      if (response) {
-        const agentMsg: Message = {
-          id: generateUUID(),
-          content: response.content,
-          sender: response.agent_name,
-          senderType: 'agent',
-          agentId: agent.id,
-          timestamp: new Date().toISOString(),
-          confidence: response.confidence,
-          tone: response.tone,
-          references: response.references,
-        }
+        if (response) {
+          const agentMsg: Message = {
+            id: generateUUID(),
+            content: response.content,
+            sender: response.agent_name,
+            senderType: 'agent',
+            agentId: agent.id,
+            timestamp: new Date().toISOString(),
+            confidence: response.confidence,
+            tone: response.tone,
+            references: response.references,
+          }
 
-        const updatedWithAgent: Room = {
-          ...roomRef.current,
-          messages: [...roomRef.current.messages, agentMsg],
-          lastActivity: new Date().toISOString(),
+          const updatedWithAgent: Room = {
+            ...roomRef.current,
+            messages: [...roomRef.current.messages, agentMsg],
+            lastActivity: new Date().toISOString(),
+          }
+          updateRoom(updatedWithAgent)
+          roomRef.current = updatedWithAgent
+        } else {
+          setChatError(`${agent.name} failed to respond. Try sending your message again.`)
         }
-        updateRoom(updatedWithAgent)
-        roomRef.current = updatedWithAgent
-      } else {
-        setChatError(`${agent.name} failed to respond. You can try sending the message again.`)
+      } catch (err) {
+        console.error(`Error in agent loop for ${agent.name}:`, err)
+        setChatError(`${agent.name} encountered an error.`)
       }
 
       setTypingAgents(prev => prev.filter(n => n !== agent.name))
     }
+
+    setIsSending(false)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -1046,10 +1257,16 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
       e.preventDefault()
       handleSend()
     }
+    if (e.key === 'Escape' && showMentionPopover) {
+      setShowMentionPopover(false)
+    }
   }
 
   const mentions = parseMentions(messageInput)
   const isTargeted = mentions.length > 0
+  const matchedAgentNames = isTargeted
+    ? selectedRoom.agents.filter(a => mentions.some(m => a.name.toLowerCase() === m.toLowerCase())).map(a => a.name)
+    : []
 
   return (
     <div className="flex-1 flex overflow-hidden">
@@ -1066,7 +1283,7 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
                   <FiHash className="h-3.5 w-3.5 flex-shrink-0" />
                   <span className="truncate">{room.name}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5 truncate pl-5">{room.agents.length} agents</p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate pl-5">{room.agents.length} agent{room.agents.length !== 1 ? 's' : ''}</p>
               </button>
             ))}
           </div>
@@ -1079,14 +1296,20 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
           <div className="flex items-center gap-2">
             <FiHash className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-sm font-bold tracking-tight font-serif">{selectedRoom.name}</h2>
-            <Badge variant="outline" className="text-xs">{selectedRoom.agents.length} agents</Badge>
+            <Badge variant="outline" className="text-xs">{selectedRoom.agents.length} agent{selectedRoom.agents.length !== 1 ? 's' : ''}</Badge>
           </div>
-          {isAdmin && (
+          <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground tracking-tight flex items-center gap-1">
-              <FiActivity className="h-3 w-3" />
-              {activeAgentId ? 'Agent active' : 'Idle'}
+              <FiUser className="h-3 w-3" />
+              {userName}
             </span>
-          )}
+            {isSending && (
+              <span className="text-xs tracking-tight flex items-center gap-1" style={{ color: 'hsl(0, 70%, 55%)' }}>
+                <FiActivity className="h-3 w-3 animate-pulse" />
+                Processing
+              </span>
+            )}
+          </div>
         </div>
 
         <ScrollArea className="flex-1">
@@ -1097,17 +1320,37 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
                   <FiMessageSquare className="h-7 w-7 text-muted-foreground" />
                 </div>
                 <h3 className="text-sm font-semibold tracking-tight font-serif mb-1">Start the conversation</h3>
-                <p className="text-xs text-muted-foreground tracking-tight leading-relaxed max-w-xs">Send a message to begin. Use @mentions to target specific agents or broadcast to all.</p>
+                <p className="text-xs text-muted-foreground tracking-tight leading-relaxed max-w-xs">
+                  Send a message to begin. Use @AgentName to target a specific agent, or just type to broadcast to all listening agents.
+                </p>
+                {selectedRoom.agents.length > 0 && (
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    {selectedRoom.agents.map(agent => (
+                      <button
+                        key={agent.id}
+                        onClick={() => {
+                          setMessageInput(`@${agent.name} `)
+                          setTimeout(() => inputRef.current?.focus(), 0)
+                        }}
+                        className="flex items-center gap-1.5 px-2 py-1 border border-border text-xs hover:bg-secondary transition-colors"
+                      >
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: agent.color }} />
+                        @{agent.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <>
                 {selectedRoom.messages.map(msg => {
-                  const agentColor = msg.senderType === 'agent' ? (selectedRoom.agents.find(a => a.id === msg.agentId)?.color ?? AGENT_COLORS[0]) : undefined
+                  const agent = msg.senderType === 'agent' ? selectedRoom.agents.find(a => a.id === msg.agentId) : null
+                  const agentColor = agent?.color ?? AGENT_COLORS[0]
                   return (
                     <div key={msg.id} className={cn('py-3 px-4 transition-colors', msg.senderType === 'agent' ? 'border-l-2 bg-card/50' : '')} style={msg.senderType === 'agent' ? { borderLeftColor: agentColor } : undefined}>
                       <div className="flex items-start gap-3">
                         {msg.senderType === 'agent' ? (
-                          <AgentAvatar name={msg.sender} color={agentColor ?? AGENT_COLORS[0]} size="sm" />
+                          <AgentAvatar name={msg.sender} color={agentColor} size="sm" />
                         ) : (
                           <UserAvatar name={msg.sender} size="sm" />
                         )}
@@ -1115,7 +1358,7 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
                           <div className="flex items-center gap-2 mb-1">
                             <span className={cn('text-sm font-semibold tracking-tight', msg.senderType === 'agent' ? 'font-serif' : '')}>{msg.sender}</span>
                             {msg.senderType === 'agent' && (
-                              <Badge variant="outline" className="text-xs h-4 px-1.5 border-border" style={{ borderColor: agentColor, color: agentColor }}>Agent</Badge>
+                              <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-border" style={{ borderColor: agentColor, color: agentColor }}>Agent</Badge>
                             )}
                             <span className="text-xs text-muted-foreground">{formatTime(msg.timestamp)}</span>
                           </div>
@@ -1140,7 +1383,10 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
                     </div>
                   )
                 })}
-                {typingAgents.map(name => <TypingDots key={name} agentName={name} />)}
+                {typingAgents.map(name => {
+                  const ta = selectedRoom.agents.find(a => a.name === name)
+                  return <TypingDots key={name} agentName={name} color={ta?.color} />
+                })}
               </>
             )}
             <div ref={messagesEndRef} />
@@ -1148,22 +1394,26 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
         </ScrollArea>
 
         {chatError && (
-          <div className="mx-4 mb-2 p-2 border border-destructive/50 bg-destructive/10 text-xs tracking-tight flex items-center justify-between" style={{ color: 'hsl(0, 70%, 55%)' }}>
-            <span>{chatError}</span>
-            <button onClick={() => setChatError(null)} className="ml-2"><FiX className="h-3 w-3" /></button>
+          <div className="mx-4 mb-2 p-2.5 border border-border bg-card text-xs tracking-tight flex items-start gap-2">
+            <FiAlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: 'hsl(0, 70%, 55%)' }} />
+            <span className="flex-1">{chatError}</span>
+            <button onClick={() => setChatError(null)} className="ml-2 flex-shrink-0"><FiX className="h-3 w-3 text-muted-foreground" /></button>
           </div>
         )}
 
         <div className="border-t border-border p-3 flex-shrink-0">
           <div className="relative">
             {showMentionPopover && filteredMentionAgents().length > 0 && (
-              <div className="absolute bottom-full left-0 mb-1 w-64 bg-popover border border-border z-50 overflow-hidden">
+              <div className="absolute bottom-full left-0 mb-1 w-72 bg-popover border border-border z-50 overflow-hidden max-h-48 overflow-y-auto">
+                <div className="p-1.5">
+                  <p className="text-[10px] text-muted-foreground px-2 py-1 uppercase tracking-wider font-medium">Agents in this room</p>
+                </div>
                 {filteredMentionAgents().map(agent => (
-                  <button key={agent.id} onClick={() => insertMention(agent.name)} className="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-secondary transition-colors">
+                  <button key={agent.id} onClick={() => insertMention(agent.name)} className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:bg-secondary transition-colors">
                     <AgentAvatar name={agent.name} color={agent.color} size="sm" />
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium tracking-tight">{agent.name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{agent.personality}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{agent.personality} - {agent.trigger === 'mentions' ? 'responds when tagged' : agent.trigger}</p>
                     </div>
                   </button>
                 ))}
@@ -1171,13 +1421,26 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
             )}
 
             <div className="flex items-center gap-2">
-              {isTargeted && (
-                <Badge variant="outline" className="text-xs flex-shrink-0 border-border" style={{ borderColor: 'hsl(0, 70%, 55%)', color: 'hsl(0, 70%, 55%)' }}>
-                  @{mentions.join(', @')}
+              {isTargeted && matchedAgentNames.length > 0 && (
+                <Badge variant="outline" className="text-xs flex-shrink-0 border-border whitespace-nowrap" style={{ borderColor: 'hsl(0, 70%, 55%)', color: 'hsl(0, 70%, 55%)' }}>
+                  @{matchedAgentNames.join(', @')}
                 </Badge>
               )}
-              <Input ref={inputRef} value={messageInput} onChange={handleInputChange} onKeyDown={handleKeyDown} placeholder={`Message ${selectedRoom.name}... (type @ to mention)`} className="shadow-none flex-1" />
-              <Button onClick={handleSend} disabled={!messageInput.trim() || typingAgents.length > 0} className="shadow-none" size="sm">
+              {isTargeted && matchedAgentNames.length === 0 && (
+                <Badge variant="outline" className="text-xs flex-shrink-0 border-border whitespace-nowrap text-muted-foreground">
+                  No match
+                </Badge>
+              )}
+              <Input
+                ref={inputRef}
+                value={messageInput}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder={`Message ${selectedRoom.name}... (type @ to mention an agent)`}
+                className="shadow-none flex-1"
+                disabled={isSending}
+              />
+              <Button onClick={handleSend} disabled={!messageInput.trim() || isSending} className="shadow-none" size="sm">
                 <FiSend className="h-4 w-4" />
               </Button>
             </div>
@@ -1205,7 +1468,7 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
                       <p className="text-xs font-medium tracking-tight truncate">{agent.name}</p>
                       <PersonalityBadge personality={agent.personality} />
                     </div>
-                    {activeAgentId === agent.id && (
+                    {typingAgents.includes(agent.name) && (
                       <span className="h-2 w-2 rounded-full animate-pulse" style={{ backgroundColor: agent.color }} />
                     )}
                   </button>
@@ -1217,16 +1480,25 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
 
             <Collapsible open={usersOpen} onOpenChange={setUsersOpen}>
               <CollapsibleTrigger className="w-full flex items-center justify-between px-2 py-1.5 text-xs font-semibold tracking-tight text-muted-foreground uppercase hover:text-foreground transition-colors">
-                <span>Users ({selectedRoom.users.length})</span>
+                <span>Users ({selectedRoom.users.length + 1})</span>
                 {usersOpen ? <FiChevronUp className="h-3 w-3" /> : <FiChevronDown className="h-3 w-3" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-0.5 mt-1">
+                {/* Current user always shows */}
+                <div className="px-2 py-2 flex items-center gap-2.5">
+                  <UserAvatar name={userName} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium tracking-tight truncate">{userName}</p>
+                    <Badge variant="outline" className="text-[10px] h-4 px-1 capitalize">you</Badge>
+                  </div>
+                  <span className="h-2 w-2 rounded-full bg-green-500" />
+                </div>
                 {selectedRoom.users.map(user => (
                   <div key={user.id} className="px-2 py-2 flex items-center gap-2.5">
                     <UserAvatar name={user.name} size="sm" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium tracking-tight truncate">{user.name}</p>
-                      <Badge variant="outline" className="text-xs h-4 px-1 capitalize">{user.role}</Badge>
+                      <Badge variant="outline" className="text-[10px] h-4 px-1 capitalize">{user.role}</Badge>
                     </div>
                   </div>
                 ))}
@@ -1254,7 +1526,17 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
               <div><span className="font-medium text-foreground">Response: </span><span className="capitalize">{detailAgent.responseLength}</span></div>
               <div><span className="font-medium text-foreground">Temp: </span><span className="font-mono">{detailAgent.temperature.toFixed(2)}</span></div>
             </div>
-            <Button variant="outline" size="sm" className="w-full shadow-none gap-1 text-xs" onClick={() => { insertMention(detailAgent.name); setAgentDetailId(null) }}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full shadow-none gap-1 text-xs"
+              disabled={isSending}
+              onClick={() => {
+                setMessageInput(prev => `${prev}@${detailAgent.name} `.trimStart())
+                setAgentDetailId(null)
+                setTimeout(() => inputRef.current?.focus(), 0)
+              }}
+            >
               <FiSend className="h-3 w-3" />
               Ask {detailAgent.name}
             </Button>
@@ -1270,26 +1552,26 @@ Respond as ${agent.name} with a ${agent.personality} tone. Your agent_name in th
 // ============================================================
 
 export default function Page() {
+  const [userName, setUserName] = useState<string | null>(null)
   const [currentView, setCurrentView] = useState<ViewType>('dashboard')
   const [rooms, setRooms] = useState<Room[]>([])
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [isAdmin, setIsAdmin] = useState(true)
-  const [showSampleData, setShowSampleData] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newRoomName, setNewRoomName] = useState('')
   const [newRoomDesc, setNewRoomDesc] = useState('')
   const [newRoomVisibility, setNewRoomVisibility] = useState<'public' | 'private'>('public')
 
+  // Load sample data on mount
   useEffect(() => {
-    if (showSampleData) {
-      setRooms(prev => prev.length === 0 ? createSampleData() : prev)
-    } else {
-      setRooms([])
-      setSelectedRoom(null)
-      setCurrentView('dashboard')
-    }
-  }, [showSampleData])
+    setRooms(createSampleData())
+  }, [])
+
+  // If no user identity yet, show entry screen
+  if (!userName) {
+    return <UserIdentityEntry onJoin={(name) => setUserName(name)} />
+  }
 
   function handleCreateRoom() {
     if (!newRoomName.trim()) return
@@ -1365,8 +1647,15 @@ export default function Page() {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Label className="text-xs text-muted-foreground tracking-tight cursor-pointer" htmlFor="sample-toggle">Sample Data</Label>
-              <Switch id="sample-toggle" checked={showSampleData} onCheckedChange={setShowSampleData} />
+              <FiUser className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground tracking-tight">{userName}</span>
+              <button
+                onClick={() => setUserName(null)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors tracking-tight"
+                title="Change name"
+              >
+                <FiEdit3 className="h-3 w-3" />
+              </button>
             </div>
             <Separator orientation="vertical" className="h-5" />
             <div className="flex items-center gap-2">
@@ -1385,6 +1674,7 @@ export default function Page() {
             onConfigure={handleConfigureRoom}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
+            isAdmin={isAdmin}
           />
         )}
 
@@ -1404,6 +1694,7 @@ export default function Page() {
             setSelectedRoom={switchRoom}
             updateRoom={updateRoomFromDiscussion}
             isAdmin={isAdmin}
+            userName={userName}
           />
         )}
 
@@ -1441,13 +1732,13 @@ export default function Page() {
           </DialogContent>
         </Dialog>
 
-        {/* AGENT STATUS FOOTER */}
+        {/* FOOTER */}
         <footer className="border-t border-border px-4 py-2 flex-shrink-0 bg-card/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                <span className="text-xs text-muted-foreground tracking-tight">Room Agent</span>
+                <span className="text-xs text-muted-foreground tracking-tight">Room Agent Connected</span>
                 <span className="text-xs text-muted-foreground tracking-tight font-mono">({AGENT_ID.slice(0, 8)}...)</span>
               </div>
               {selectedRoom && selectedRoom.agents.length > 0 && (
