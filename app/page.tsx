@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle, FiShield, FiUserCheck } from 'react-icons/fi'
+import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle, FiShield, FiUserCheck, FiSmile } from 'react-icons/fi'
 
 // ============================================================
 // TYPES
@@ -108,6 +108,13 @@ const FREQUENCIES = [
   { value: 'every-2nd', label: 'Every 2nd message' },
   { value: 'every-3rd', label: 'Every 3rd message' },
   { value: 'cooldown', label: 'Cooldown (30s)' },
+]
+
+const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
+  { label: 'Smileys', emojis: ['\u{1F600}', '\u{1F603}', '\u{1F604}', '\u{1F601}', '\u{1F605}', '\u{1F602}', '\u{1F923}', '\u{1F60A}', '\u{1F607}', '\u{1F642}', '\u{1F643}', '\u{1F609}', '\u{1F60C}', '\u{1F60D}', '\u{1F618}', '\u{1F617}', '\u{1F61A}', '\u{1F619}', '\u{1F60B}', '\u{1F61B}', '\u{1F61C}', '\u{1F92A}', '\u{1F61D}', '\u{1F911}', '\u{1F917}', '\u{1F914}', '\u{1F910}', '\u{1F928}', '\u{1F610}', '\u{1F611}', '\u{1F636}', '\u{1F60F}', '\u{1F612}', '\u{1F644}', '\u{1F62C}', '\u{1F925}'] },
+  { label: 'Gestures', emojis: ['\u{1F44D}', '\u{1F44E}', '\u{1F44A}', '\u{270A}', '\u{1F91B}', '\u{1F91C}', '\u{1F44F}', '\u{1F64C}', '\u{1F450}', '\u{1F932}', '\u{1F91D}', '\u{1F64F}', '\u{270D}\uFE0F', '\u{1F485}', '\u{1F933}', '\u{1F4AA}', '\u{1F9B5}', '\u{1F9B6}', '\u{1F442}', '\u{1F443}', '\u{1F440}', '\u{1F441}\uFE0F', '\u{1F445}', '\u{1F444}', '\u{1F44B}', '\u{1F91A}', '\u{1F590}\uFE0F', '\u{270B}', '\u{1F596}', '\u{1F44C}', '\u{270C}\uFE0F', '\u{1F91E}', '\u{1F91F}', '\u{1F918}', '\u{1F448}', '\u{1F449}'] },
+  { label: 'Objects', emojis: ['\u{2764}\uFE0F', '\u{1F4A1}', '\u{1F525}', '\u{2B50}', '\u{1F31F}', '\u{1F4AF}', '\u{1F389}', '\u{1F388}', '\u{1F381}', '\u{1F3C6}', '\u{1F947}', '\u{1F948}', '\u{1F949}', '\u{1F4DA}', '\u{1F4DD}', '\u{1F4CB}', '\u{1F4CA}', '\u{1F4C8}', '\u{1F4C9}', '\u{1F4BB}', '\u{1F4F1}', '\u{2699}\uFE0F', '\u{1F527}', '\u{1F512}', '\u{1F513}', '\u{1F4E7}', '\u{1F4AC}', '\u{1F4AD}', '\u{1F6A8}', '\u{1F514}', '\u{23F0}', '\u{1F680}', '\u{2708}\uFE0F', '\u{1F3AF}', '\u{1F9E9}', '\u{1F4A4}'] },
+  { label: 'Reactions', emojis: ['\u{2705}', '\u{274C}', '\u{2757}', '\u{2753}', '\u{1F4A2}', '\u{1F4A5}', '\u{1F4AB}', '\u{1F4A6}', '\u{1F4A8}', '\u{1F4A3}', '\u{1F4AC}', '\u{1F441}\uFE0F\u200D\u{1F5E8}\uFE0F', '\u{1F5E8}\uFE0F', '\u{1F5EF}\uFE0F', '\u{1F44B}', '\u{1F44D}', '\u{1F44E}', '\u{1F44F}', '\u{1F64C}', '\u{1F64F}', '\u{1F4AA}', '\u{1F91D}', '\u{270C}\uFE0F', '\u{1F918}', '\u{1F44C}', '\u{1F525}', '\u{2764}\uFE0F', '\u{1F49B}', '\u{1F49A}', '\u{1F499}', '\u{1F49C}', '\u{1F5A4}', '\u{1F90D}', '\u{1F90E}', '\u{2763}\uFE0F'] },
 ]
 
 // ============================================================
@@ -1098,8 +1105,11 @@ function DiscussionView({
   const [agentsOpen, setAgentsOpen] = useState(true)
   const [usersOpen, setUsersOpen] = useState(true)
   const [isSending, setIsSending] = useState(false)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [emojiCategory, setEmojiCategory] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const emojiRef = useRef<HTMLDivElement>(null)
   const roomRef = useRef<Room>(selectedRoom)
 
   // Keep roomRef in sync
@@ -1114,6 +1124,25 @@ function DiscussionView({
   useEffect(() => {
     scrollToBottom()
   }, [selectedRoom.messages.length, typingAgents.length, scrollToBottom])
+
+  // Close emoji picker on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
+        setShowEmojiPicker(false)
+      }
+    }
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showEmojiPicker])
+
+  function insertEmoji(emoji: string) {
+    setMessageInput(prev => prev + emoji)
+    setShowEmojiPicker(false)
+    setTimeout(() => inputRef.current?.focus(), 0)
+  }
 
   const detailAgent = selectedRoom.agents.find(a => a.id === agentDetailId) ?? null
 
@@ -1516,6 +1545,49 @@ IMPORTANT: Respond as ${agent.name} with a ${agent.personality} tone. Your agent
                 className="shadow-none flex-1"
                 disabled={isSending}
               />
+              <div className="relative" ref={emojiRef}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="shadow-none h-8 w-8 p-0 flex-shrink-0"
+                  onClick={() => setShowEmojiPicker(prev => !prev)}
+                  disabled={isSending}
+                >
+                  <FiSmile className="h-4 w-4" />
+                </Button>
+                {showEmojiPicker && (
+                  <div className="absolute bottom-full right-0 mb-2 w-80 bg-popover border border-border z-50 overflow-hidden">
+                    <div className="flex items-center border-b border-border">
+                      {EMOJI_CATEGORIES.map((cat, idx) => (
+                        <button
+                          key={cat.label}
+                          onClick={() => setEmojiCategory(idx)}
+                          className={cn(
+                            'flex-1 px-2 py-2 text-xs tracking-tight transition-colors',
+                            emojiCategory === idx
+                              ? 'bg-secondary text-foreground font-medium'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                          )}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="p-2 grid grid-cols-9 gap-0.5 max-h-48 overflow-y-auto">
+                      {EMOJI_CATEGORIES[emojiCategory].emojis.map((emoji, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => insertEmoji(emoji)}
+                          className="h-8 w-8 flex items-center justify-center text-lg hover:bg-secondary transition-colors"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               <Button onClick={handleSend} disabled={!messageInput.trim() || isSending} className="shadow-none" size="sm">
                 <FiSend className="h-4 w-4" />
               </Button>
