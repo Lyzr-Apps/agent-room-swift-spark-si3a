@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle } from 'react-icons/fi'
+import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle, FiShield, FiUserCheck } from 'react-icons/fi'
 
 // ============================================================
 // TYPES
@@ -458,22 +458,36 @@ function TypingDots({ agentName, color }: { agentName: string; color?: string })
 }
 
 // ============================================================
-// USER IDENTITY ENTRY
+// USER IDENTITY ENTRY WITH ROLE SELECTION
 // ============================================================
 
-function UserIdentityEntry({ onJoin }: { onJoin: (name: string) => void }) {
+const ADMIN_PASSCODE = 'admin123'
+
+function UserIdentityEntry({ onJoin }: { onJoin: (name: string, role: 'admin' | 'participant') => void }) {
   const [name, setName] = useState('')
+  const [selectedRole, setSelectedRole] = useState<'admin' | 'participant' | null>(null)
+  const [adminCode, setAdminCode] = useState('')
+  const [codeError, setCodeError] = useState('')
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (name.trim().length >= 2) {
-      onJoin(name.trim())
+    if (name.trim().length < 2 || !selectedRole) return
+
+    if (selectedRole === 'admin') {
+      if (adminCode !== ADMIN_PASSCODE) {
+        setCodeError('Invalid admin passcode. Try again or enter as a participant.')
+        return
+      }
     }
+
+    onJoin(name.trim(), selectedRole)
   }
+
+  const canSubmit = name.trim().length >= 2 && selectedRole !== null && (selectedRole === 'participant' || adminCode.length > 0)
 
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-      <div className="w-full max-w-sm mx-auto p-8">
+      <div className="w-full max-w-md mx-auto p-8">
         <div className="flex flex-col items-center mb-8">
           <div className="h-12 w-12 flex items-center justify-center mb-4" style={{ backgroundColor: 'hsl(0, 70%, 55%)' }}>
             <FiMessageSquare className="h-6 w-6 text-white" />
@@ -481,33 +495,95 @@ function UserIdentityEntry({ onJoin }: { onJoin: (name: string) => void }) {
           <h1 className="text-2xl font-bold tracking-tight font-serif">AgentRoom</h1>
           <p className="text-sm text-muted-foreground mt-2 tracking-tight leading-relaxed text-center">
             Multi-agent collaborative discussion platform.
-            Enter your name to get started.
+            Choose how you want to join.
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <Label className="text-xs font-medium tracking-tight">Your Display Name</Label>
             <Input
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g., Sarah Chen"
-              className="shadow-none text-center"
+              className="shadow-none"
               autoFocus
               minLength={2}
               maxLength={30}
             />
-            <p className="text-xs text-muted-foreground tracking-tight text-center">
-              This name will appear on your messages in discussion rooms
-            </p>
           </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-medium tracking-tight">Select Your Role</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => { setSelectedRole('admin'); setCodeError('') }}
+                className={cn(
+                  'p-4 border text-left transition-colors',
+                  selectedRole === 'admin'
+                    ? 'border-foreground bg-secondary'
+                    : 'border-border hover:border-foreground/30 hover:bg-secondary/50'
+                )}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <FiShield className="h-4 w-4" style={selectedRole === 'admin' ? { color: 'hsl(0, 70%, 55%)' } : {}} />
+                  <span className="text-sm font-semibold tracking-tight">Admin</span>
+                </div>
+                <p className="text-xs text-muted-foreground tracking-tight leading-relaxed">
+                  Create rooms, configure agents, manage users and room settings
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSelectedRole('participant'); setCodeError('') }}
+                className={cn(
+                  'p-4 border text-left transition-colors',
+                  selectedRole === 'participant'
+                    ? 'border-foreground bg-secondary'
+                    : 'border-border hover:border-foreground/30 hover:bg-secondary/50'
+                )}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUserCheck className="h-4 w-4" style={selectedRole === 'participant' ? { color: 'hsl(0, 70%, 55%)' } : {}} />
+                  <span className="text-sm font-semibold tracking-tight">Participant</span>
+                </div>
+                <p className="text-xs text-muted-foreground tracking-tight leading-relaxed">
+                  Join rooms, chat with agents, view discussions and agent details
+                </p>
+              </button>
+            </div>
+          </div>
+
+          {selectedRole === 'admin' && (
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium tracking-tight">Admin Passcode</Label>
+              <Input
+                type="password"
+                value={adminCode}
+                onChange={e => { setAdminCode(e.target.value); setCodeError('') }}
+                placeholder="Enter admin passcode"
+                className="shadow-none"
+              />
+              {codeError && (
+                <p className="text-xs tracking-tight flex items-center gap-1" style={{ color: 'hsl(0, 70%, 55%)' }}>
+                  <FiAlertCircle className="h-3 w-3" />
+                  {codeError}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground tracking-tight">
+                Default passcode: admin123
+              </p>
+            </div>
+          )}
+
           <Button
             type="submit"
-            disabled={name.trim().length < 2}
+            disabled={!canSubmit}
             className="w-full shadow-none gap-2"
-            style={name.trim().length >= 2 ? { backgroundColor: 'hsl(0, 70%, 55%)', color: 'white' } : {}}
+            style={canSubmit ? { backgroundColor: 'hsl(0, 70%, 55%)', color: 'white' } : {}}
           >
-            <FiLogIn className="h-4 w-4" />
-            Enter AgentRoom
+            {selectedRole === 'admin' ? <FiShield className="h-4 w-4" /> : <FiLogIn className="h-4 w-4" />}
+            {selectedRole === 'admin' ? 'Enter as Admin' : selectedRole === 'participant' ? 'Enter as Participant' : 'Select a role'}
           </Button>
         </form>
       </div>
@@ -1553,15 +1629,17 @@ IMPORTANT: Respond as ${agent.name} with a ${agent.personality} tone. Your agent
 
 export default function Page() {
   const [userName, setUserName] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<'admin' | 'participant'>('participant')
   const [currentView, setCurrentView] = useState<ViewType>('dashboard')
   const [rooms, setRooms] = useState<Room[]>([])
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
-  const [isAdmin, setIsAdmin] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newRoomName, setNewRoomName] = useState('')
   const [newRoomDesc, setNewRoomDesc] = useState('')
   const [newRoomVisibility, setNewRoomVisibility] = useState<'public' | 'private'>('public')
+
+  const isAdmin = userRole === 'admin'
 
   // Load sample data on mount
   useEffect(() => {
@@ -1570,7 +1648,7 @@ export default function Page() {
 
   // If no user identity yet, show entry screen
   if (!userName) {
-    return <UserIdentityEntry onJoin={(name) => setUserName(name)} />
+    return <UserIdentityEntry onJoin={(name, role) => { setUserName(name); setUserRole(role) }} />
   }
 
   function handleCreateRoom() {
@@ -1647,21 +1725,21 @@ export default function Page() {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <FiUser className="h-3 w-3 text-muted-foreground" />
+              {isAdmin ? <FiShield className="h-3 w-3" style={{ color: 'hsl(0, 70%, 55%)' }} /> : <FiUser className="h-3 w-3 text-muted-foreground" />}
               <span className="text-xs text-muted-foreground tracking-tight">{userName}</span>
-              <button
-                onClick={() => setUserName(null)}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors tracking-tight"
-                title="Change name"
-              >
-                <FiEdit3 className="h-3 w-3" />
-              </button>
+              <Badge variant="outline" className="text-[10px] h-4 px-1.5 capitalize" style={isAdmin ? { borderColor: 'hsl(0, 70%, 55%)', color: 'hsl(0, 70%, 55%)' } : {}}>
+                {userRole}
+              </Badge>
             </div>
             <Separator orientation="vertical" className="h-5" />
-            <div className="flex items-center gap-2">
-              <Label className="text-xs text-muted-foreground tracking-tight cursor-pointer" htmlFor="admin-toggle">Admin</Label>
-              <Switch id="admin-toggle" checked={isAdmin} onCheckedChange={setIsAdmin} />
-            </div>
+            <button
+              onClick={() => { setUserName(null); setUserRole('participant') }}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors tracking-tight flex items-center gap-1"
+              title="Switch account"
+            >
+              <FiEdit3 className="h-3 w-3" />
+              <span className="hidden sm:inline">Switch</span>
+            </button>
           </div>
         </header>
 
@@ -1678,7 +1756,7 @@ export default function Page() {
           />
         )}
 
-        {currentView === 'room-config' && selectedRoom && (
+        {currentView === 'room-config' && selectedRoom && isAdmin && (
           <RoomConfigView
             room={selectedRoom}
             onBack={() => setCurrentView('dashboard')}
