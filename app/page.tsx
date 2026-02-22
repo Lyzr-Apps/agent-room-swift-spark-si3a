@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle, FiShield, FiUserCheck, FiSmile } from 'react-icons/fi'
+import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle, FiShield, FiUserCheck, FiSmile, FiClock, FiCopy, FiKey } from 'react-icons/fi'
 
 // ============================================================
 // TYPES
@@ -42,7 +42,7 @@ interface RoomUser {
   id: string
   name: string
   email: string
-  role: 'participant' | 'observer' | 'moderator'
+  role: 'participant' | 'observer' | 'moderator' | 'admin'
 }
 
 interface Message {
@@ -469,6 +469,7 @@ function TypingDots({ agentName, color }: { agentName: string; color?: string })
 // ============================================================
 
 const ADMIN_PASSCODE = 'admin123'
+const CLONE_SECRET_CODE = 'cloneroom42'
 
 function UserIdentityEntry({ onJoin }: { onJoin: (name: string, role: 'admin' | 'participant') => void }) {
   const [name, setName] = useState('')
@@ -607,6 +608,8 @@ function DashboardView({
   onSelect,
   onCreate,
   onConfigure,
+  onViewHistory,
+  onCloneRoom,
   searchQuery,
   setSearchQuery,
   isAdmin,
@@ -615,6 +618,8 @@ function DashboardView({
   onSelect: (room: Room) => void
   onCreate: () => void
   onConfigure: (room: Room) => void
+  onViewHistory: (room: Room) => void
+  onCloneRoom: (room: Room) => void
   searchQuery: string
   setSearchQuery: (q: string) => void
   isAdmin: boolean
@@ -674,11 +679,21 @@ function DashboardView({
                       <CardTitle className="text-base font-bold tracking-tight font-serif truncate">{room.name}</CardTitle>
                       <CardDescription className="text-xs mt-1 tracking-tight leading-relaxed line-clamp-2">{room.description}</CardDescription>
                     </div>
-                    {isAdmin && (
-                      <Button variant="ghost" size="sm" className="shadow-none h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => { e.stopPropagation(); onConfigure(room) }}>
-                        <FiSettings className="h-4 w-4" />
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="sm" className="shadow-none h-7 w-7 p-0" title="Clone room" onClick={e => { e.stopPropagation(); onCloneRoom(room) }}>
+                        <FiCopy className="h-3.5 w-3.5" />
                       </Button>
-                    )}
+                      {isAdmin && (
+                        <>
+                          <Button variant="ghost" size="sm" className="shadow-none h-7 w-7 p-0" title="View history" onClick={e => { e.stopPropagation(); onViewHistory(room) }}>
+                            <FiClock className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="shadow-none h-7 w-7 p-0" title="Configure" onClick={e => { e.stopPropagation(); onConfigure(room) }}>
+                            <FiSettings className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pb-4">
@@ -737,7 +752,7 @@ function RoomConfigView({
   }))
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(editRoom.agents.length > 0 ? editRoom.agents[0].id : null)
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState<'participant' | 'observer' | 'moderator'>('participant')
+  const [inviteRole, setInviteRole] = useState<'participant' | 'observer' | 'moderator' | 'admin'>('participant')
   const [saved, setSaved] = useState(false)
 
   const selectedAgent = editRoom.agents.find(a => a.id === selectedAgentId) ?? null
@@ -982,6 +997,7 @@ function RoomConfigView({
                       <SelectItem value="participant">Participant</SelectItem>
                       <SelectItem value="observer">Observer</SelectItem>
                       <SelectItem value="moderator">Moderator</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button onClick={addUser} className="shadow-none gap-1" disabled={!inviteEmail.trim()}>
@@ -1004,7 +1020,10 @@ function RoomConfigView({
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="capitalize text-xs">{user.role}</Badge>
+                          <Badge variant="outline" className="capitalize text-xs" style={user.role === 'admin' ? { borderColor: 'hsl(0, 70%, 55%)', color: 'hsl(0, 70%, 55%)' } : {}}>
+                            {user.role === 'admin' && <FiShield className="h-2.5 w-2.5 mr-1" />}
+                            {user.role}
+                          </Badge>
                           <button onClick={() => removeUser(user.id)} className="h-6 w-6 flex items-center justify-center hover:bg-destructive/20 transition-colors">
                             <FiTrash2 className="h-3 w-3 text-muted-foreground" />
                           </button>
@@ -1710,6 +1729,11 @@ export default function Page() {
   const [newRoomName, setNewRoomName] = useState('')
   const [newRoomDesc, setNewRoomDesc] = useState('')
   const [newRoomVisibility, setNewRoomVisibility] = useState<'public' | 'private'>('public')
+  const [historyRoom, setHistoryRoom] = useState<Room | null>(null)
+  const [cloneRoom, setCloneRoom] = useState<Room | null>(null)
+  const [cloneCode, setCloneCode] = useState('')
+  const [cloneError, setCloneError] = useState('')
+  const [cloneSuccess, setCloneSuccess] = useState(false)
 
   const isAdmin = userRole === 'admin'
 
@@ -1776,6 +1800,40 @@ export default function Page() {
     setSelectedRoom(room)
   }
 
+  function handleViewHistory(room: Room) {
+    setHistoryRoom(room)
+  }
+
+  function handleCloneRoom(room: Room) {
+    setCloneRoom(room)
+    setCloneCode('')
+    setCloneError('')
+    setCloneSuccess(false)
+  }
+
+  function executeClone() {
+    if (!cloneRoom) return
+    if (cloneCode !== CLONE_SECRET_CODE) {
+      setCloneError('Invalid secret code. Please try again.')
+      return
+    }
+    const clonedRoom: Room = {
+      id: generateUUID(),
+      name: `${cloneRoom.name} (Copy)`,
+      description: cloneRoom.description,
+      visibility: cloneRoom.visibility,
+      status: 'active',
+      agents: cloneRoom.agents.map(a => ({ ...a, id: generateUUID() })),
+      users: [],
+      messages: [],
+      createdAt: new Date().toISOString(),
+      lastActivity: new Date().toISOString(),
+    }
+    setRooms(prev => [...prev, clonedRoom])
+    setCloneSuccess(true)
+    setCloneError('')
+  }
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen h-screen bg-background text-foreground flex flex-col overflow-hidden">
@@ -1822,6 +1880,8 @@ export default function Page() {
             onSelect={handleSelectRoom}
             onCreate={() => setShowCreateModal(true)}
             onConfigure={handleConfigureRoom}
+            onViewHistory={handleViewHistory}
+            onCloneRoom={handleCloneRoom}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             isAdmin={isAdmin}
@@ -1879,6 +1939,134 @@ export default function Page() {
               <Button variant="outline" onClick={() => setShowCreateModal(false)} className="shadow-none">Cancel</Button>
               <Button onClick={handleCreateRoom} disabled={!newRoomName.trim()} className="shadow-none">Create Room</Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* CONVERSATION HISTORY MODAL (admin only) */}
+        <Dialog open={!!historyRoom} onOpenChange={open => { if (!open) setHistoryRoom(null) }}>
+          <DialogContent className="shadow-none border border-border max-w-2xl max-h-[80vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="font-serif font-bold tracking-tight flex items-center gap-2">
+                <FiClock className="h-4 w-4" />
+                Conversation History
+              </DialogTitle>
+              <DialogDescription className="text-xs tracking-tight">
+                {historyRoom?.name} - {historyRoom?.messages.length || 0} message{(historyRoom?.messages.length || 0) !== 1 ? 's' : ''}
+              </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="flex-1 max-h-[55vh]">
+              {historyRoom && historyRoom.messages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <FiMessageSquare className="h-8 w-8 text-muted-foreground mb-3" />
+                  <p className="text-sm text-muted-foreground tracking-tight">No messages in this room yet</p>
+                </div>
+              ) : (
+                <div className="space-y-1 pr-4">
+                  {historyRoom?.messages.map(msg => {
+                    const agent = msg.senderType === 'agent' ? historyRoom.agents.find(a => a.id === msg.agentId) : null
+                    const agentColor = agent?.color ?? AGENT_COLORS[0]
+                    return (
+                      <div key={msg.id} className={cn('py-2.5 px-3 text-sm', msg.senderType === 'agent' ? 'border-l-2 bg-card/50' : '')} style={msg.senderType === 'agent' ? { borderLeftColor: agentColor } : undefined}>
+                        <div className="flex items-center gap-2 mb-1">
+                          {msg.senderType === 'agent' ? (
+                            <AgentAvatar name={msg.sender} color={agentColor} size="sm" />
+                          ) : (
+                            <UserAvatar name={msg.sender} size="sm" />
+                          )}
+                          <span className={cn('text-xs font-semibold tracking-tight', msg.senderType === 'agent' ? 'font-serif' : '')}>{msg.sender}</span>
+                          {msg.senderType === 'agent' && <Badge variant="outline" className="text-[9px] h-3.5 px-1" style={{ borderColor: agentColor, color: agentColor }}>Agent</Badge>}
+                          <span className="text-[10px] text-muted-foreground ml-auto">{formatTime(msg.timestamp)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground tracking-tight leading-relaxed pl-8 whitespace-pre-wrap">{msg.content.length > 300 ? msg.content.slice(0, 300) + '...' : msg.content}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </ScrollArea>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setHistoryRoom(null)} className="shadow-none text-xs">Close</Button>
+              {historyRoom && historyRoom.messages.length > 0 && (
+                <Button onClick={() => { setSelectedRoom(historyRoom); setCurrentView('discussion'); setHistoryRoom(null) }} className="shadow-none text-xs gap-1">
+                  <FiMessageSquare className="h-3 w-3" />
+                  Open Room
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* CLONE ROOM MODAL */}
+        <Dialog open={!!cloneRoom} onOpenChange={open => { if (!open) { setCloneRoom(null); setCloneCode(''); setCloneError(''); setCloneSuccess(false) } }}>
+          <DialogContent className="shadow-none border border-border max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="font-serif font-bold tracking-tight flex items-center gap-2">
+                <FiCopy className="h-4 w-4" />
+                Clone Room
+              </DialogTitle>
+              <DialogDescription className="text-xs tracking-tight">
+                Create a copy of &quot;{cloneRoom?.name}&quot; with all its agents (messages are not copied)
+              </DialogDescription>
+            </DialogHeader>
+            {cloneSuccess ? (
+              <div className="py-6 text-center">
+                <div className="h-12 w-12 mx-auto mb-3 flex items-center justify-center bg-green-500/10">
+                  <FiCopy className="h-6 w-6 text-green-500" />
+                </div>
+                <p className="text-sm font-medium tracking-tight mb-1">Room cloned successfully</p>
+                <p className="text-xs text-muted-foreground tracking-tight">
+                  &quot;{cloneRoom?.name} (Copy)&quot; has been created with {cloneRoom?.agents.length} agent{(cloneRoom?.agents.length || 0) !== 1 ? 's' : ''}
+                </p>
+                <Button onClick={() => { setCloneRoom(null); setCloneSuccess(false) }} className="shadow-none mt-4 text-xs">Done</Button>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4 py-2">
+                  <div className="p-3 border border-border bg-card space-y-2">
+                    <p className="text-xs font-medium tracking-tight">What will be cloned:</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <FiCpu className="h-3 w-3 flex-shrink-0" />
+                      <span>{cloneRoom?.agents.length} agent{(cloneRoom?.agents.length || 0) !== 1 ? 's' : ''} with full configuration</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <FiSettings className="h-3 w-3 flex-shrink-0" />
+                      <span>Room settings and visibility</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground tracking-tight mt-1">Messages and users are not copied</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-medium tracking-tight flex items-center gap-1">
+                      <FiKey className="h-3 w-3" />
+                      Secret Code
+                    </Label>
+                    <Input
+                      type="password"
+                      value={cloneCode}
+                      onChange={e => { setCloneCode(e.target.value); setCloneError('') }}
+                      placeholder="Enter the secret code to clone"
+                      className="shadow-none"
+                      autoFocus
+                    />
+                    {cloneError && (
+                      <p className="text-xs tracking-tight flex items-center gap-1" style={{ color: 'hsl(0, 70%, 55%)' }}>
+                        <FiAlertCircle className="h-3 w-3" />
+                        {cloneError}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground tracking-tight">
+                      Default code: cloneroom42
+                    </p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { setCloneRoom(null); setCloneCode(''); setCloneError('') }} className="shadow-none text-xs">Cancel</Button>
+                  <Button onClick={executeClone} disabled={!cloneCode} className="shadow-none text-xs gap-1">
+                    <FiCopy className="h-3 w-3" />
+                    Clone Room
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
           </DialogContent>
         </Dialog>
 
