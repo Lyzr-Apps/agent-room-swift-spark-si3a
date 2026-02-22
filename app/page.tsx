@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle, FiShield, FiUserCheck, FiSmile, FiClock, FiCopy, FiKey } from 'react-icons/fi'
+import { FiPlus, FiSettings, FiUsers, FiSend, FiMessageSquare, FiSearch, FiTrash2, FiArrowLeft, FiChevronDown, FiChevronUp, FiActivity, FiCpu, FiUser, FiHash, FiLock, FiGlobe, FiArchive, FiX, FiZap, FiEdit3, FiLogIn, FiAlertCircle, FiShield, FiUserCheck, FiSmile, FiClock, FiCopy, FiKey, FiSun, FiMoon } from 'react-icons/fi'
 
 // ============================================================
 // TYPES
@@ -68,6 +68,7 @@ interface Room {
   messages: Message[]
   createdAt: string
   lastActivity: string
+  cloneCode: string
 }
 
 type ViewType = 'dashboard' | 'room-config' | 'discussion'
@@ -207,6 +208,7 @@ function createSampleData(): Room[] {
       ],
       createdAt: new Date(Date.now() - 86400000).toISOString(),
       lastActivity: new Date(Date.now() - 3400000).toISOString(),
+      cloneCode: 'strategy2024',
     },
     {
       id: 'sample-room-2',
@@ -248,6 +250,7 @@ function createSampleData(): Room[] {
       messages: [],
       createdAt: new Date(Date.now() - 172800000).toISOString(),
       lastActivity: new Date(Date.now() - 172800000).toISOString(),
+      cloneCode: 'techarch99',
     },
     {
       id: 'sample-room-3',
@@ -276,6 +279,7 @@ function createSampleData(): Room[] {
       messages: [],
       createdAt: new Date(Date.now() - 43200000).toISOString(),
       lastActivity: new Date(Date.now() - 43200000).toISOString(),
+      cloneCode: 'brand2024',
     },
   ]
 }
@@ -469,7 +473,6 @@ function TypingDots({ agentName, color }: { agentName: string; color?: string })
 // ============================================================
 
 const ADMIN_PASSCODE = 'admin123'
-const CLONE_SECRET_CODE = 'cloneroom42'
 
 function UserIdentityEntry({ onJoin }: { onJoin: (name: string, role: 'admin' | 'participant') => void }) {
   const [name, setName] = useState('')
@@ -579,7 +582,7 @@ function UserIdentityEntry({ onJoin }: { onJoin: (name: string, role: 'admin' | 
                 </p>
               )}
               <p className="text-xs text-muted-foreground tracking-tight">
-                Default passcode: admin123
+                Contact your organization administrator for the passcode
               </p>
             </div>
           )}
@@ -679,7 +682,7 @@ function DashboardView({
                       <CardTitle className="text-base font-bold tracking-tight font-serif truncate">{room.name}</CardTitle>
                       <CardDescription className="text-xs mt-1 tracking-tight leading-relaxed line-clamp-2">{room.description}</CardDescription>
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1">
                       <Button variant="ghost" size="sm" className="shadow-none h-7 w-7 p-0" title="Clone room" onClick={e => { e.stopPropagation(); onCloneRoom(room) }}>
                         <FiCopy className="h-3.5 w-3.5" />
                       </Button>
@@ -1060,6 +1063,22 @@ function RoomConfigView({
                       <SelectItem value="private">Private</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <Separator />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium tracking-tight flex items-center gap-1">
+                    <FiKey className="h-3 w-3" />
+                    Clone Code
+                  </Label>
+                  <Input
+                    value={editRoom.cloneCode}
+                    onChange={e => { setEditRoom(prev => ({ ...prev, cloneCode: e.target.value })); setSaved(false) }}
+                    placeholder="Set a code to allow users to clone this room"
+                    className="shadow-none"
+                  />
+                  <p className="text-xs text-muted-foreground tracking-tight">
+                    Users who know this code can create a copy of this room with all agents. Leave empty to disable cloning.
+                  </p>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between p-3 border border-border">
@@ -1734,6 +1753,7 @@ export default function Page() {
   const [cloneCode, setCloneCode] = useState('')
   const [cloneError, setCloneError] = useState('')
   const [cloneSuccess, setCloneSuccess] = useState(false)
+  const [isDark, setIsDark] = useState(false)
 
   const isAdmin = userRole === 'admin'
 
@@ -1741,6 +1761,15 @@ export default function Page() {
   useEffect(() => {
     setRooms(createSampleData())
   }, [])
+
+  // Theme toggle effect
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [isDark])
 
   // If no user identity yet, show entry screen
   if (!userName) {
@@ -1760,6 +1789,7 @@ export default function Page() {
       messages: [],
       createdAt: new Date().toISOString(),
       lastActivity: new Date().toISOString(),
+      cloneCode: '',
     }
     setRooms(prev => [...prev, newRoom])
     setNewRoomName('')
@@ -1813,7 +1843,11 @@ export default function Page() {
 
   function executeClone() {
     if (!cloneRoom) return
-    if (cloneCode !== CLONE_SECRET_CODE) {
+    if (!cloneRoom.cloneCode) {
+      setCloneError('Cloning is not enabled for this room. Ask the admin to set a clone code in room settings.')
+      return
+    }
+    if (cloneCode !== cloneRoom.cloneCode) {
       setCloneError('Invalid secret code. Please try again.')
       return
     }
@@ -1828,6 +1862,7 @@ export default function Page() {
       messages: [],
       createdAt: new Date().toISOString(),
       lastActivity: new Date().toISOString(),
+      cloneCode: '',
     }
     setRooms(prev => [...prev, clonedRoom])
     setCloneSuccess(true)
@@ -1861,6 +1896,14 @@ export default function Page() {
                 {userRole}
               </Badge>
             </div>
+            <Separator orientation="vertical" className="h-5" />
+            <button
+              onClick={() => setIsDark(prev => !prev)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors tracking-tight flex items-center gap-1"
+              title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            >
+              {isDark ? <FiSun className="h-3.5 w-3.5" /> : <FiMoon className="h-3.5 w-3.5" />}
+            </button>
             <Separator orientation="vertical" className="h-5" />
             <button
               onClick={() => { setUserName(null); setUserRole('participant') }}
@@ -2054,7 +2097,7 @@ export default function Page() {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground tracking-tight">
-                      Default code: cloneroom42
+                      Ask the room admin for the clone code
                     </p>
                   </div>
                 </div>
